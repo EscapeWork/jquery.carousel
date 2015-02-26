@@ -49,6 +49,7 @@ $('.js-carousel-container').carousel({
     show: 3,   // the number of elements that are visible 
     speed: 500 // the speed of the transition
 });
+```
 
 ### License
 
