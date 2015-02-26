@@ -74,11 +74,12 @@
         },
 
         setSizes: function() {
-            this.settings.total = this.$items.size();
+            this.settings.totalItems = this.$items.size();
+            this.settings.totalPages = Math.ceil(this.settings.totalItems / this.settings.show);
 
             this.sizes = {
                 item: this.$items.outerWidth(),
-                items: this.$items.outerWidth() * this.settings.total
+                items: this.$items.outerWidth() * this.settings.totalItems
             };
 
             this.$list.width(this.sizes.items);
@@ -97,45 +98,65 @@
         },
 
         navToLeft: function() {
-            var left, count;
+            var percorrido, items, left;
 
+            percorrido = this.settings.active * this.settings.show;
             this.settings.active--;
 
-            if (this.settings.active == 0) {
-                this.settings.active = this.settings.total;
+            // if the active 'page' is higher the total pages, we need to reset
+            if (this.settings.active <= 0) {
+                this.slideToEnd();
+                return;
             }
 
-            count = this.settings.show * this.settings.active;
-            left  = (count * this.sizes.item) - this.sizes.item;
+            percorrido = this.settings.active * this.settings.show;
+            left       = (percorrido * this.sizes.item) - (this.settings.show * this.sizes.item);
 
-            this.setActive(count);
-
-            this.$list.animate({
-                'left': '-' + left + 'px'
-            }, this.settings.speed);
+            this.slide(left);
         },
 
         navToRight: function() {
-            var left, count;
+            var percorrido, items, left;
 
+            percorrido = this.settings.active * this.settings.show;
             this.settings.active++;
 
-            if (this.settings.active > this.settings.total) {
-                this.settings.active = 1;
+            // if the active 'page' is higher the total pages, we need to reset
+            if (this.settings.active > this.settings.totalPages) {
+                this.reset();
+                return;
             }
 
-            count = this.settings.show * this.settings.active;
-            left  = (count * this.sizes.item) - this.sizes.item;
+            // setando o total de items
+            items = this.settings.active * this.settings.show;
 
-            this.setActive(count);
+            if (items > this.settings.totalItems) {
+                left = (this.settings.totalItems - this.settings.show) * this.sizes.item;
+            } else {
+                left = (items * this.sizes.item) - (this.settings.show * this.sizes.item);
+            }
 
+            this.slide(left);
+        },
+
+        reset: function() {
+            this.settings.active = 1;
+            this.slide('0');
+        },
+
+        slideToEnd: function() {
+            var left;
+
+            this.settings.active = this.settings.totalPages;
+            left = (this.settings.totalItems * this.sizes.item) - (this.settings.show * this.sizes.item);
+
+            this.slide(left);
+        },
+
+        slide: function(left) {
             this.$list.animate({
                 'left': '-' + left + 'px'
             }, this.settings.speed);
-        },
-
-        setActive: function(active) {
-            this.settings.active = active;
         }
     });
 
